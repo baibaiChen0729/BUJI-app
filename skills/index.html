@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>步集 BUJI · Skill 集合</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: #f7f5f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 64px 40px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #888;
+    background: #ebe9e4;
+    border-radius: 20px;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  header h1 span { color: #c8aa85; }
+  header p {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.7;
+    max-width: 520px;
+  }
+
+  /* ── Grid ── */
+  .grid {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: 1fr; padding: 0 20px 60px; }
+    header { padding: 40px 20px 28px; }
+    header h1 { font-size: 28px; }
+  }
+
+  /* ── Card ── */
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 0 #e8e4dc, 0 8px 32px rgba(0,0,0,.06);
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 0 #e8e4dc, 0 16px 48px rgba(0,0,0,.1);
+  }
+
+  /* preview area */
+  .preview {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .preview iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+    transform-origin: top left;
+  }
+  .preview-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+    background: linear-gradient(to top, rgba(0,0,0,.3) 0%, transparent 60%);
+  }
+  .preview-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: #fff;
+    background: rgba(255,255,255,.2);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    padding: 4px 10px;
+  }
+
+  /* card body */
+  .card-body {
+    padding: 24px 24px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    color: #999;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 13.5px;
+    color: #666;
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  /* tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #888;
+    background: #f0ede8;
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  /* links */
+  .card-links {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #f0ede8;
+  }
+  .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 0;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: #1a1a1a;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #333; }
+  .btn-secondary {
+    background: #f0ede8;
+    color: #555;
+  }
+  .btn-secondary:hover { background: #e8e4dc; color: #1a1a1a; }
+
+  /* ── Dot preview bg ── */
+  .preview-dot { background: #f5efe0; }
+  .preview-album { background: #1a1a1a; }
+
+  /* ── dot pattern decoration ── */
+  .dot-deco {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  svg.dot-svg { width: 100%; height: 100%; }
+
+  /* ── album preview decoration ── */
+  .album-cards {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+  }
+  .album-card-mini {
+    border-radius: 12px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  /* ── footer ── */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: #bbb;
+  }
+  footer a { color: #bbb; text-decoration: none; }
+  footer a:hover { color: #888; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">步集 BUJI · Skills</div>
+  <h1>可复用前端<span> Skill</span> 集合</h1>
+  <p>从「步集」App 提炼的两个高质量前端交互模块，零依赖、开箱即用，适用于相机滤镜、照片墙、卡片轮播等场景。</p>
+</header>
+
+<div class="grid">
+
+  <!-- ── Card 1: 波点合成器 ── -->
+  <div class="card">
+    <div class="preview preview-dot">
+      <!-- 静态 SVG 预览：上下双区波点效果 -->
+      <div class="dot-deco">
+        <svg class="dot-svg" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <!-- 背景 -->
+          <rect width="400" height="220" fill="#f5efe0"/>
+          <!-- 上方实心遮罩区（奶咖色实心圆） -->
+          <g fill="#c8aa85">
+            <circle cx="55"  cy="44"  r="28"/>
+            <circle cx="130" cy="30"  r="18"/>
+            <circle cx="195" cy="55"  r="22"/>
+            <circle cx="270" cy="35"  r="26"/>
+            <circle cx="345" cy="50"  r="20"/>
+            <circle cx="90"  cy="88"  r="14"/>
+            <circle cx="160" cy="95"  r="10"/>
+            <circle cx="235" cy="82"  r="16"/>
+            <circle cx="310" cy="90"  r="12"/>
+          </g>
+          <!-- 分割线（无缝） -->
+          <!-- 下方镂空区：同位置圆洞露出画面 -->
+          <!-- 先铺照片色块 -->
+          <rect y="110" width="400" height="110" fill="#e8ddd0"/>
+          <!-- 渐变模拟照片内容 -->
+          <rect y="110" width="400" height="110" fill="url(#grad1)"/>
+          <!-- 同位置镂空圆 -->
+          <g fill="#f5efe0">
+            <circle cx="55"  cy="154" r="28"/>
+            <circle cx="130" cy="140" r="18"/>
+            <circle cx="195" cy="165" r="22"/>
+            <circle cx="270" cy="145" r="26"/>
+            <circle cx="345" cy="160" r="20"/>
+            <circle cx="90"  cy="198" r="14"/>
+            <circle cx="160" cy="205" r="10"/>
+            <circle cx="235" cy="192" r="16"/>
+            <circle cx="310" cy="200" r="12"/>
+          </g>
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="400" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#d4a96a" stop-opacity=".4"/>
+              <stop offset="100%" stop-color="#8fbccc" stop-opacity=".4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="preview-overlay">
+        <span class="preview-tag">Canvas · 实时渲染</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">dot-mask-compositor</div>
+      <div class="card-title">波点双区<br>遮罩合成器</div>
+      <div class="card-desc">把相机/图片/视频流实时合成为「上方实心遮挡 + 下方镂空透出」的波点美学画面。支持 5 种波点形状、6 套预设色板、可变容器比例与裁切占比。</div>
+      <div class="tags">
+        <span class="tag">相机滤镜</span>
+        <span class="tag">Canvas 合成</span>
+        <span class="tag">拒绝采样</span>
+        <span class="tag">零依赖</span>
+        <span class="tag">步集风</span>
+      </div>
+      <div class="card-links">
+        <a class="btn btn-primary" href="dot-mask-compositor/assets/demo-minimal.html" target="_blank">▶ 运行 Demo</a>
+        <a class="btn btn-secondary" href="dot-mask-compositor/SKILL.md" target="_blank">文档</a>
+        <a class="btn btn-secondary" href="dot-mask-compositor/references/api-reference.md" target="_blank">API</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Card 2: 相册地图轮播 ── -->
+  <div class="card">
+    <div class="preview preview-album">
+      <!-- 静态 SVG 预览：6点位错落卡片 -->
+      <div class="dot-deco">
+        <svg class="dot-svg" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <rect width="400" height="220" fill="#1a1a1a"/>
+          <!-- 左侧露边卡片 -->
+          <rect x="-60" y="28" width="130" height="158" rx="12" fill="#2a2a2a" opacity=".7"/>
+          <rect x="-60" y="28" width="130" height="158" rx="12" fill="url(#imgL)" opacity=".5"/>
+          <!-- 中央焦点大卡 -->
+          <rect x="85" y="18" width="150" height="184" rx="14" fill="#333"/>
+          <rect x="85" y="18" width="150" height="184" rx="14" fill="url(#imgC)"/>
+          <!-- 右侧卡片 -->
+          <rect x="252" y="40" width="130" height="152" rx="12" fill="#2a2a2a" opacity=".7"/>
+          <rect x="252" y="40" width="130" height="152" rx="12" fill="url(#imgR)" opacity=".5"/>
+          <!-- 第二排（藏在下面，露顶） -->
+          <rect x="-60" y="192" width="130" height="80" rx="12" fill="#232323"/>
+          <rect x="85"  y="208" width="150" height="80" rx="12" fill="#2d2d2d"/>
+          <rect x="252" y="198" width="130" height="80" rx="12" fill="#232323"/>
+          <!-- 焦点卡白框 -->
+          <rect x="85" y="18" width="150" height="184" rx="14" fill="none" stroke="#fff" stroke-width="1.5" opacity=".15"/>
+          <!-- 左上文案 -->
+          <text x="20" y="24" font-size="11" fill="white" opacity=".9" font-family="sans-serif" font-weight="600">6月23日</text>
+          <text x="20" y="40" font-size="9"  fill="white" opacity=".5" font-family="sans-serif">本人今天又出去玩了</text>
+          <!-- 焦点标识 -->
+          <circle cx="160" cy="210" r="4" fill="white" opacity=".8"/>
+          <defs>
+            <linearGradient id="imgL" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8fbccc"/>
+              <stop offset="100%" stop-color="#6a9fb0"/>
+            </linearGradient>
+            <linearGradient id="imgC" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#d4a96a"/>
+              <stop offset="100%" stop-color="#c8855a"/>
+            </linearGradient>
+            <linearGradient id="imgR" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#9bbc8f"/>
+              <stop offset="100%" stop-color="#7aa870"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="preview-overlay">
+        <span class="preview-tag">Touch · 列轮转 · 焦点联动</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">album-map-carousel</div>
+      <div class="card-title">相册地图<br>6 点位轮播</div>
+      <div class="card-desc">固定 6 点位错落卡片墙，左右拖拽列轮转浏览，所有照片轮流流过中央焦点位；焦点切换时实时联动日期/文案。内容无限推送，体验自然流畅。</div>
+      <div class="tags">
+        <span class="tag">照片墙</span>
+        <span class="tag">焦点联动</span>
+        <span class="tag">wrapS 算法</span>
+        <span class="tag">零依赖</span>
+        <span class="tag">步集相册</span>
+      </div>
+      <div class="card-links">
+        <a class="btn btn-primary" href="album-map-carousel/assets/demo-minimal.html" target="_blank">▶ 运行 Demo</a>
+        <a class="btn btn-secondary" href="album-map-carousel/SKILL.md" target="_blank">文档</a>
+        <a class="btn btn-secondary" href="album-map-carousel/references/api-reference.md" target="_blank">API</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  步集 BUJI · Skills ·
+  <a href="../buji.html" target="_blank">查看完整原型</a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/baibaiChen0729/-app" target="_blank">GitHub</a>
+</footer>
+
+</body>
+</html>

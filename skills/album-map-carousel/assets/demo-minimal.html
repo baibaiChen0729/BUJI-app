@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AlbumMapCarousel · Minimal Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background:#0a0a0f; min-height:100dvh; display:flex; align-items:center; justify-content:center; font-family:-apple-system,"PingFang SC",sans-serif; color:#2e383f; user-select:none; }
+  .phone { width:430px; height:740px; background:#faf9f9; border-radius:40px; position:relative; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .date { position:absolute; left:32px; top:40px; font-size:30px; font-weight:600; }
+  .caption { position:absolute; left:32px; top:84px; font-size:24px; color:#555; }
+  /* 舞台：必须 overflow:hidden + 明确尺寸 */
+  #stage { position:absolute; left:0; top:150px; right:0; bottom:0; overflow:hidden; touch-action:none; cursor:grab; }
+  #stage.dragging { cursor:grabbing; }
+  .tip { position:absolute; left:0; right:0; bottom:14px; text-align:center; font-size:13px; color:#999; }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="date" id="date">DAY 01</div>
+    <div class="caption" id="caption">左右滑动浏览相册</div>
+    <div id="stage"></div>
+    <div class="tip">← 左右拖拽：每张图轮流到中央焦点，文案联动 →</div>
+  </div>
+
+  <script src="./album-map-carousel.js"></script>
+  <script>
+    // 用 SVG data URI 生成 8 张占位图（自包含，无需外部资源）
+    function swatch(hue, label) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="270" height="360">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="hsl(${hue},70%,72%)"/>
+          <stop offset="1" stop-color="hsl(${(hue+40)%360},65%,58%)"/>
+        </linearGradient></defs>
+        <rect width="270" height="360" fill="url(#g)"/>
+        <text x="135" y="195" font-size="56" font-family="sans-serif" font-weight="700"
+              fill="rgba(255,255,255,.9)" text-anchor="middle">${label}</text>
+      </svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+    const hues = [200, 150, 330, 220, 95, 35, 270, 10];
+    const heights = [357, 360, 332, 361, 332, 333, 357, 403];
+    const items = hues.map((h, i) => ({
+      src: swatch(h, (i + 1)),
+      h: heights[i],
+      meta: { date: 'DAY 0' + (i + 1), caption: '这是第 ' + (i + 1) + ' 张照片的故事' },
+    }));
+
+    new AlbumMapCarousel({
+      container: document.getElementById('stage'),
+      items: items,
+      onFocus: (item) => {
+        document.getElementById('date').textContent = item.meta.date;
+        document.getElementById('caption').textContent = item.meta.caption;
+      },
+    });
+  </script>
+</body>
+</html>
