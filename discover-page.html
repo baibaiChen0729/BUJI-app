@@ -82,7 +82,7 @@
     position: absolute; left: 143px; top: 756px; width: 144px; height: 56px;
     background: #2E383F; border-radius: 80px; border: none; cursor: pointer;
     color: #fff; font-size: 18px; font-weight: 600; font-family: -apple-system, "PingFang SC", sans-serif;
-    display: flex; align-items: center; justify-content: center; z-index: 9;
+    display: flex; align-items: center; justify-content: center; z-index: 20;
     transition: transform .15s, opacity .15s;
   }
   .btn-go:active { transform: scale(0.96); opacity: .9; }
@@ -178,6 +178,20 @@ function _param(k) { return new URLSearchParams(location.search).get(k) || new U
 const EMBED = _param('embed') === '1';
 if (EMBED) document.body.classList.add('embed');
 
+// 统一整页跳转：iframe 内续传 embed 语境，独立打开则用各自完整手机外壳
+function nav(page, params) {
+  const parts = [];
+  if (EMBED) parts.push('embed=1');
+  if (params) parts.push(params);
+  location.href = page + (parts.length ? '#' + parts.join('&') : '');
+}
+// 在 buji 容器内：发 postMessage 触发滑动/覆盖层；独立打开：整页跳转
+// 命名为 route，避免与下方卡片轮播的 go(dir) 冲突
+function route(msg, page, params) {
+  if (EMBED) parent.postMessage(msg, '*');
+  else nav(page, params);
+}
+
 const deck = document.getElementById('deck');
 const pager = document.getElementById('pager');
 let frontEl = document.getElementById('cardA');  // 深色，初始在前
@@ -262,7 +276,7 @@ deck.addEventListener('pointerup', endDrag);
 deck.addEventListener('pointercancel', endDrag);
 
 // 去记录 → 相机
-document.getElementById('btnGo').addEventListener('click', () => { location.href = 'live-template-camera.html'; });
+document.getElementById('btnGo').addEventListener('click', () => route('openCamera', 'live-template-camera.html'));
 
 // ── 呼吸灯（第一次记录后出现）+ 整页「上滑」回相册地图 ──
 const breath = document.getElementById('breath');
@@ -271,16 +285,18 @@ let recorded = _param('recorded') === '1';
 
 // 整个页面上滑（记录后生效）→ 相册地图；要求垂直上滑为主，避免与左右切卡冲突
 const shell = document.querySelector('.phone-shell');
-let gx = 0, gy = 0, gDown = false;
-shell.addEventListener('pointerdown', e => { gx = e.clientX; gy = e.clientY; gDown = true; }, true);
+let gx = 0, gy = 0, gDown = false, gTarget = null;
+shell.addEventListener('pointerdown', e => { gx = e.clientX; gy = e.clientY; gDown = true; gTarget = e.target; }, true);
 shell.addEventListener('pointerup', e => {
   if (!gDown) return; gDown = false;
   if (!recorded) return;
+  // 起手落在「去记录」按钮上 → 视为点击，不触发整页上滑（避免热区重叠误跳相册地图）
+  if (gTarget && gTarget.closest && gTarget.closest('#btnGo')) return;
   const dyUp = gy - e.clientY;                 // 上滑为正
   const dxAbs = Math.abs(e.clientX - gx);
-  if (dyUp > 60 && dyUp > dxAbs * 1.2) { if (EMBED) parent.postMessage('goAlbum', '*'); else location.href = 'album-map.html'; }
+  if (dyUp > 80 && dyUp > dxAbs * 1.5) route('goAlbum', 'album-map.html');
 }, true);
-breath.addEventListener('click', () => { if (EMBED) parent.postMessage('goAlbum', '*'); else location.href = 'album-map.html'; }); // 点呼吸灯也可
+breath.addEventListener('click', () => route('goAlbum', 'album-map.html')); // 点呼吸灯也可
 
 document.getElementById('demoToggle').addEventListener('click', () => { recorded = !recorded; showBreath(recorded); });
 showBreath(recorded);
