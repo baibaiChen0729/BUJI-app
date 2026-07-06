@@ -1,10 +1,10 @@
 // ══════════════════════════════════════════════════════════
 //  步集 BUJI — Service Worker
-//  策略：静态壳资源 cache-first；GET API network-first；
-//        POST/PUT/DELETE 完全不拦截（让浏览器直接走网络）
+//  策略：静态壳资源 network-first（开发期改动立即生效，缓存仅离线兜底）；
+//        GET API network-only；POST/PUT/DELETE 完全不拦截。
 // ══════════════════════════════════════════════════════════
 
-const CACHE = 'buji-v8';
+const CACHE = 'buji-v22';
 
 // 安装时预缓存所有前端壳资源
 const PRECACHE = [
@@ -50,16 +50,14 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // GET 静态资源：cache-first，缺失时 fallback 到网络并顺便缓存
+  // GET 静态资源：network-first（每次取最新，改动立即生效），网络失败才用缓存兜底
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res.ok) {
-          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
-        }
-        return res;
-      });
-    }).catch(() => caches.match('/'))  // 离线兜底：返回主页
+    fetch(e.request).then(res => {
+      if (res.ok) {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+      }
+      return res;
+    }).catch(() => caches.match(e.request).then(c => c || caches.match('/')))
   );
 });

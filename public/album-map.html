@@ -13,17 +13,18 @@
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     background: #0a0a0f; font-family: -apple-system, "PingFang SC", sans-serif;
-    min-height: 100dvh; overflow: hidden; display: flex; align-items: center; justify-content: center;
+    height: 100dvh; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
     color: #2e383f; user-select: none;
   }
+  /* 独立预览：flex 居中 + JS 纯 scale（body 固定高不撑开，整机完整居中不截断）*/
   .phone-shell {
+    position: relative; flex-shrink: 0;
     width: 430px; height: 932px; background: #faf9f9; border-radius: 54px;
     box-shadow: 0 0 0 2px #2a2a30, 0 30px 80px rgba(0,0,0,0.8);
-    overflow: hidden; position: relative;
+    overflow: hidden;
+    transform-origin: center center;
   }
-  @media (max-height: 960px) { .phone-shell { transform: scale(0.86); transform-origin: center; } }
-  @media (max-height: 820px) { .phone-shell { transform: scale(0.74); transform-origin: center; } }
-  @media (max-height: 720px) { .phone-shell { transform: scale(0.64); transform-origin: center; } }
 
   .status-bar { position: absolute; top: 0; left: 0; right: 0; height: 54px; z-index: 30; }
   .status-time {
@@ -34,7 +35,7 @@
   .status-icons svg { display: block; }
 
   .album-date {
-    position: absolute; left: 39px; top: 94px; z-index: 20;
+    position: absolute; left: 31px; top: 94px; z-index: 20;   /* Figma layout_Y341VU x:31 */
     font-family: 'momozhuanji', cursive; font-size: 32px; line-height: 40px; color: #2e383f;
   }
   .album-caption {
@@ -171,7 +172,7 @@ let N = MAP_SRC.length;
 // "YYYY-MM-DD" → "M月D日"
 function formatDate(s) {
   if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return s || '';
-  const [, m, d] = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const [, y, m, d] = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   return `${parseInt(m)}月${parseInt(d)}日`;
 }
 
@@ -340,7 +341,18 @@ stage.addEventListener('pointercancel', onUp);
 
 // ── embed 语境 + 整页「下滑」回发现页 ──────────────
 const EMBED = (new URLSearchParams(location.search).get('embed') || new URLSearchParams(location.hash.slice(1)).get('embed')) === '1';
-if (EMBED) document.body.classList.add('embed');
+if (EMBED) {
+  document.body.classList.add('embed');   // embed 由 CSS 铺满 iframe
+} else {
+  // 独立打开：flex 居中 + 纯 scale，完整可见不截断
+  const _shell = document.querySelector('.phone-shell');
+  const fitShell = () => {
+    const scale = Math.min(1, (window.innerWidth - 24) / 430, (window.innerHeight - 24) / 932);
+    _shell.style.setProperty('transform', `scale(${scale})`, 'important');
+  };
+  fitShell();
+  window.addEventListener('resize', fitShell);
+}
 // 跳转封装：buji 容器内发 postMessage 触发下滑动效；独立打开则整页跳转
 function nav(page, params) {
   const parts = [];

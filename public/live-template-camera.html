@@ -10,7 +10,7 @@
   body {
     background: #0a0a0f;
     font-family: -apple-system, "PingFang SC", sans-serif;
-    min-height: 100dvh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -19,33 +19,26 @@
     user-select: none;
   }
 
-  /* ─── 手机外壳 ─── */
+  /* ─── 手机外壳（独立预览：flex 居中 + JS 纯 scale，整机完整不截断）─── */
   .phone-shell {
+    position: relative; flex-shrink: 0;
     width: 430px;
-    height: 1012px;
-    background: #1c1c20;
+    height: 932px;
+    background: #2A2A2A;   /* Figma fill_NXXIR8 相机页背景 */
     border-radius: 50px;
     box-shadow: 0 0 0 2px #2a2a30, 0 30px 80px rgba(0,0,0,0.8);
     overflow: hidden;
-    position: relative;
     display: flex;
     flex-direction: column;
+    transform-origin: center center;
   }
-  @media (max-height: 1040px) { .phone-shell { transform: scale(0.92); transform-origin: center; } }
-  @media (max-height: 940px)  { .phone-shell { transform: scale(0.82); transform-origin: center; } }
-  @media (max-height: 840px)  { .phone-shell { transform: scale(0.72); transform-origin: center; } }
-  @media (max-height: 740px)  { .phone-shell { transform: scale(0.62); transform-origin: center; } }
 
-  /* embed 模式（嵌入 buji.html 容器）：去掉外壳圆角/阴影，深色铺底 */
-  /* embed 模式（嵌入 buji.html 覆盖层 iframe）：
-     等比缩放（scale fit-to-iframe）确保快门键 / 所有控件始终可见，不被截断 */
-  body.embed { background: #0a0a14; align-items: flex-start; justify-content: center; overflow: hidden; }
+  /* embed 模式（嵌入 buji.html 覆盖层 iframe）：顶部对齐，transform 由 JS 计算 */
+  body.embed { background: #2A2A2A; align-items: flex-start; overflow: hidden; }
   body.embed .phone-shell {
     border-radius: 0; box-shadow: none;
-    /* 固定设计尺寸；transform 由 JS 按 iframe 实际大小计算 */
-    width: 430px; height: 1012px; flex-shrink: 0;
+    width: 430px; height: 932px;
     transform-origin: top center !important;
-    /* 覆盖 @media max-height 的 scale（JS 会重新设置正确值） */
     transform: scale(1) !important;
   }
 
@@ -133,21 +126,21 @@
   }
   .seg-btn:active { transform: scale(0.95); }
 
-  /* ─── 形状选择器 ─── */
+  /* ─── 形状选择器（Figma fill_V3A4KK #E4E4E4）─── */
   .shape-bar {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     padding: 6px 0 2px;
   }
   .shape-btn {
     width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.7); font-size: 16px;
+    background: #E4E4E4; border: none;
+    color: #2E383F; font-size: 16px;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.2s;
   }
   .shape-btn.active {
-    background: linear-gradient(135deg, #ffe0c4, #ffb8d6); border-color: transparent;
-    color: #1a0a0f; transform: scale(1.08);
+    background: #2E383F; border-color: transparent;
+    color: #E4E4E4; transform: scale(1.08);
   }
   .shape-btn:active { transform: scale(0.94); }
 
@@ -190,15 +183,20 @@
     position: absolute; inset: 0; opacity: 0; cursor: pointer; border: none; padding: 0;
   }
 
-  /* ─── 变焦档 ─── */
-  .zoom-bar { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 6px 0; flex-shrink: 0; }
+  /* ─── 变焦档（Figma：容器 rgba(0,0,0,0.30)，激活档 rgba(0,0,0,0.60) + #FFD60A）─── */
+  .zoom-bar {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 4px 6px; flex-shrink: 0;
+    width: fit-content; margin: 6px auto;
+    background: rgba(0,0,0,0.30); border-radius: 22px;
+  }
   .zoom-btn {
     width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(0,0,0,0.45); color: rgba(255,255,255,0.7);
+    background: transparent; color: rgba(255,255,255,0.7);
     font-size: 11px; font-weight: 600; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center; transition: all 0.2s;
   }
-  .zoom-btn.active { background: rgba(255,255,255,0.25); color: #ffe0c4; width: 36px; height: 36px; font-size: 13px; }
+  .zoom-btn.active { background: rgba(0,0,0,0.60); color: #FFD60A; width: 36px; height: 36px; font-size: 13px; }
 
   /* ─── 底部行动区 ─── */
   .action-row {
@@ -221,7 +219,7 @@
     cursor: pointer; position: relative; transition: transform 0.1s;
     box-shadow: 0 0 0 4px rgba(255,255,255,0.25);
   }
-  .shutter-btn::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; border: 2px solid #1c1c20; }
+  .shutter-btn::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; border: 2px solid #2A2A2A; }
   .shutter-btn:active { transform: scale(0.92); }
   .shutter-btn.capturing { background: #ffb8d6; }
 
@@ -279,6 +277,21 @@
   }
   .confirm-btn svg { width: 28px; height: 28px; }
 
+  /* confirming 态四角标记（Figma fill_GBBR9Q #FAFFB1 · L 型）——框住成片显示区 */
+  .confirm-corners { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+  .confirm-corner {
+    position: absolute; width: 26px; height: 26px;
+  }
+  .confirm-corner::before, .confirm-corner::after {
+    content: ''; position: absolute; background: #FAFFB1;
+  }
+  .confirm-corner::before { width: 26px; height: 3px; top: 0; left: 0; }
+  .confirm-corner::after  { width: 3px; height: 26px; top: 0; left: 0; }
+  .confirm-corner.tl { top: 28px; left: 24px; }
+  .confirm-corner.tr { top: 28px; right: 24px; transform: scaleX(-1); }
+  .confirm-corner.bl { bottom: 150px; left: 24px; transform: scaleY(-1); }
+  .confirm-corner.br { bottom: 150px; right: 24px; transform: scale(-1,-1); }
+
   /* ─── 旧成片层（保留兼容，实际不再使用）─── */
   .result-overlay {
     position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 200;
@@ -301,81 +314,103 @@
     80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-8px);}
   }
   #randomBtn { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  /* ═══════════════ Figma 设计布局（绝对定位，覆盖上方旧 flex 样式）═══════════════ */
+  /* 顶部 Flash（左24,41）/ Live Photo（右381,41）· 25×25 白 */
+  .cam-top-btn { position: absolute; top: 41px; width: 25px; height: 25px; color: #fff; cursor: pointer; z-index: 60; display: flex; align-items: center; justify-content: center; }
+  .cam-top-btn svg { width: 100%; height: 100%; }
+  .cam-top-btn#topLeftBtn { left: 24px; }
+  .cam-top-btn.right { right: 24px; }
+
+  /* 取景区 @(12,144) 406×573（canvas 填满，圆角24，无 L 角）*/
+  .preview-container { position: absolute !important; left: 12px; top: 144px; width: 406px; height: 573px; padding: 0 !important; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 24px; }
+  .canvas-wrapper { position: relative; border-radius: 24px; overflow: hidden; }
+
+  /* 变焦 @(136,735) 157×43：容器 rgba(0,0,0,0.3)；仅激活档 1× 有底 rgba(0,0,0,0.6)+#FFD60A，其余透明 */
+  .zoom-bar { position: absolute !important; left: 136px; top: 735px; width: 157px; height: 43px; margin: 0 !important; padding: 0 9px !important; display: flex; align-items: center; justify-content: center; gap: 9px; background: rgba(0,0,0,0.30); border-radius: 22px; z-index: 40; }
+  .zoom-btn { width: 25px; height: 25px; border-radius: 50%; background: transparent; color: #fff; font-size: 12px; font-weight: 500; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .zoom-btn.active { width: 37px; height: 37px; background: rgba(0,0,0,0.60); color: #FFD60A; font-size: 13px; font-weight: 600; }
+
+  /* 底部：相册（20,807）49 r10 无描边 / 快门（179,796）72 / 设置（362,807）48 */
+  .side-btn { position: absolute; z-index: 40; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; border: none; }
+  .side-btn.album { left: 20px; top: 807px; width: 49px; height: 49px; border-radius: 10px; background: linear-gradient(135deg,#4a4a55,#2a2a35) center/cover; }
+  .side-btn.setting { left: 362px; top: 807px; width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.20); overflow: visible; }
+  .side-btn.setting svg, .side-btn.setting img { width: 26px; height: 26px; display: block; }
+  .side-btn:active { transform: scale(0.92); }
+  /* 快门：白色外环 + 白色内圆（中间露背景色细缝，iOS 标准）*/
+  .shutter-btn { position: absolute !important; left: 179px; top: 796px; width: 72px; height: 72px; border-radius: 50%; background: transparent; border: 4px solid #fff; cursor: pointer; z-index: 40; box-shadow: none; }
+  .shutter-btn::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #fff; border: none; }
+  .shutter-btn:active { transform: scale(0.94); }
+  .shutter-btn.capturing::before { background: #ffb8d6; }
+
+  /* 遮罩 + 参数半层：Figma 面板顶 @551，贴手机底 932（height=381，滑块底 901 到面板底留 31 间距）*/
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,0.40); z-index: 70; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+  .param-panel { position: absolute; left: 0; bottom: 0; width: 430px; height: 381px; background: #2A2A2A; border-radius: 36px 36px 0 0; z-index: 80; transform: translateY(100%); transition: transform .34s cubic-bezier(.22,1,.36,1); }
+  .param-panel.show { transform: translateY(0); }
+  .panel-handle { position: relative; height: 44px; }
+  .handle-close { position: absolute; right: 28px; top: 20px; width: 22px; height: 22px; background: none; border: none; cursor: pointer; padding: 0; }
+  .handle-close svg, .handle-close img { width: 22px; height: 22px; display: block; }
+  /* 形状栏 @(28,607) 374×80：4个80×80 r16，间距18（space-between）*/
+  .shape-bar { position: absolute; left: 28px; top: 56px; width: 374px; height: 80px; display: flex; justify-content: space-between; gap: 0; padding: 0; background: none; }
+  .shape-btn { position: relative; width: 80px; height: 80px; border-radius: 16px; background: #E4E4E4; border: none; cursor: pointer; padding: 0; overflow: hidden; transition: transform .12s; }
+  .shape-btn:active { transform: scale(0.96); }
+  /* 选中态：黑遮罩 rgba(0,0,0,0.4) + 随机切换 icon（点击触发取景框内该形状随机布局）*/
+  .shape-btn.active::after { content: ''; position: absolute; inset: 0; border-radius: 16px; background: rgba(0,0,0,0.40) url('assets/camera/icon-random.svg') no-repeat center / 33px 28px; }
+
+  /* 滑块 @(28,701) 374×200：4行 44 高 gap8；标签区44 + 轨道318（Track 灰 rgba(120,120,128,0.2)）*/
+  .cam-sliders { position: absolute; left: 28px; top: 150px; width: 374px; display: flex; flex-direction: column; gap: 8px; }
+  .slider-row { display: flex; align-items: center; gap: 0; height: 44px; }
+  .slider-row .s-lbl { color: #fff; font-size: 14px; font-weight: 400; width: 44px; flex-shrink: 0; }
+  /* 轨道：灰底总条；左侧高亮 rgba(255,255,255,0.32) 由 JS 动态 linear-gradient 填充 */
+  .slider-row .param-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; outline: none; background: rgba(120,120,128,0.2); }
+  .slider-row .param-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; cursor: pointer; border: none; box-shadow: none; }
+  .slider-row .param-slider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #fff; cursor: pointer; border: none; }
+
+  /* 隐藏兼容元素 */
+  .hidden-compat { position: absolute; width: 0; height: 0; overflow: hidden; opacity: 0; pointer-events: none; }
+
+  /* 确认层 close/done 按设计位置（111/251,780 · 68×68）*/
+  .confirm-actions { position: absolute !important; bottom: 84px; left: 0; right: 0; padding: 0 !important; z-index: 10; }
+  .confirm-btn.cancel { position: absolute; left: 111px; }
+  .confirm-btn.done { position: absolute; right: 111px; }
+
+  /* 形状按钮切图（Figma 导出 SVG，含 #E4E4E4 底 + 图标）*/
+  .shape-btn { font-size: 0 !important; background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
+  .shape-btn[data-shape=circle]   { background-image: url('assets/camera/shape-dot.svg'); }
+  .shape-btn[data-shape=teardrop] { background-image: url('assets/camera/shape-triangle.svg'); }
+  .shape-btn[data-shape=star]     { background-image: url('assets/camera/shape-star.svg'); }
+  .shape-btn[data-shape=char]     { background-image: url('assets/camera/shape-meow.svg'); }
+
+  /* 颜色按钮（Figma 470:2399）：外层彩虹色环(CONIC 精确 stops) + 中间填充当前遮罩色小圆 */
+  .color-btn { position: absolute; left: 28px; top: 19px; width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; padding: 2px; box-sizing: border-box; display: block; background: conic-gradient(from 180deg, #ff0000 0%, #ffe600 16%, #05ff00 33%, #00ffff 50%, #001aff 68%, #db00ff 85%, #ff0000 100%); }
+  .color-dot { display: block; width: 100%; height: 100%; border-radius: 50%; background: #faffb1; border: 2px solid #2A2A2A; box-sizing: border-box; }
+  .color-btn input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: none; cursor: pointer; padding: 0; }
+
+  /* 顶部 Flash / Live Photo 图标 */
+  .cam-top-btn img { width: 100%; height: 100%; display: block; object-fit: contain; }
 </style>
 </head>
 <body>
 
 <div class="phone-shell" id="phoneShell">
 
-  <!-- 状态栏 -->
-  <div class="status-bar">
-    <div class="status-time" id="statusTime">15:30</div>
-    <div class="status-icons">📶 🔋</div>
+  <!-- 顶部：Flash（左）/ Live Photo（右）-->
+  <div class="cam-top-btn" id="topLeftBtn" title="闪光灯">
+    <img src="assets/camera/icon-flash.svg" alt="闪光灯">
+  </div>
+  <div class="cam-top-btn right" id="liveBtn" title="实况">
+    <img src="assets/camera/icon-livephoto.svg" alt="实况">
   </div>
 
-  <!-- 顶部 -->
-  <div class="top-bar">
-    <div class="top-btn" id="topLeftBtn" title="闪光灯">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4.09 12.97a.5.5 0 0 0 .38.83H11l-1 8 8.91-10.97a.5.5 0 0 0-.38-.83H13l1-8z"/></svg>
-    </div>
-    <div style="font-size:13px;font-weight:600;color:#fff;letter-spacing:3px">步集</div>
-    <div class="top-btn" id="flipBtn" title="切换前后摄">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+  <!-- 取景区（Figma Corner Markers @12,144 · 406×573）-->
+  <div class="preview-container" id="previewContainer">
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="compositeCanvas"></canvas>
     </div>
   </div>
 
-  <!-- 相机主舞台 -->
-  <div class="camera-stage">
-    <!-- 固定尺寸容器（406×572）：canvas 在里面居中，容器高度永远不变 -->
-    <div class="preview-container" id="previewContainer">
-      <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="compositeCanvas"></canvas>
-        <div class="fps-badge" id="fpsBadge">-- fps</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 横竖 + 主图位置 -->
-  <div class="orient-controls">
-    <button class="seg-btn active" data-orient="portrait" title="竖屏 · 上下分割">▯ 竖屏</button>
-    <button class="seg-btn" data-orient="landscape" title="横屏 · 左右分割">▭ 横屏</button>
-    <button class="seg-btn swap" id="swapBtn" title="主图上下交换">⇅ 主图在上</button>
-  </div>
-
-  <!-- 形状选择器（由后端 /v1/config 下发，动态渲染；下面是加载前的占位/兜底） -->
-  <div class="shape-bar" id="shapeBar"></div>
-
-  <!-- 参数：占比 / 差异 / 大小 / 数量 -->
-  <div class="param-bar">
-    <div class="param-label">占比</div>
-    <input type="range" class="param-slider" id="ratioSlider" min="0" max="100" value="50">
-    <div class="param-value" id="ratioValue">50</div>
-  </div>
-  <div class="param-bar">
-    <div class="param-label">差异</div>
-    <input type="range" class="param-slider" id="varSlider" min="0" max="100" value="50">
-    <div class="param-value" id="varValue">50</div>
-  </div>
-  <div class="param-bar">
-    <div class="param-label">大小</div>
-    <input type="range" class="param-slider" id="sizeSlider" min="8" max="36" value="20">
-    <div class="param-value" id="sizeValue">20</div>
-  </div>
-  <div class="param-bar">
-    <div class="param-label">数量</div>
-    <input type="range" class="param-slider" id="dotSlider" min="5" max="40" value="14">
-    <div class="param-value" id="dotValue">14</div>
-  </div>
-
-  <!-- 填充色 -->
-  <div class="color-bar" id="colorBar">
-    <!-- 预设色 swatch 动态生成 -->
-    <div class="color-add" title="自定义颜色（系统取色器）">
-      ＋<input type="color" id="colorPicker" value="#bfe5f0">
-    </div>
-  </div>
-
-  <!-- 变焦 -->
+  <!-- 变焦（@136,735）-->
   <div class="zoom-bar">
     <button class="zoom-btn">0.5</button>
     <button class="zoom-btn active">1×</button>
@@ -383,15 +418,47 @@
     <button class="zoom-btn">3</button>
   </div>
 
-  <!-- 行动行 -->
-  <div class="action-row">
-    <div class="side-btn album" id="albumBtn">🖼</div>
-    <div class="shutter-btn" id="shutterBtn"></div>
-    <div class="side-btn" id="randomBtn" title="随机位置">
-      <svg viewBox="0 0 60 60" fill="none" aria-label="随机位置">
-        <path d="M14.0359 29.8127C13.7664 30.203 13.6874 30.5469 13.799 30.8442C13.9198 31.1416 14.2311 31.2903 14.7329 31.2903H16.5589C16.7448 32.963 17.2234 34.5289 17.9947 35.9879C18.766 37.4468 19.7603 38.7246 20.9777 39.8212C22.1951 40.9177 23.5751 41.7773 25.1177 42.4C26.6603 43.0226 28.2959 43.3339 30.0243 43.3339C32.0037 43.3339 33.8577 42.925 35.5861 42.1072C37.3146 41.2895 38.7922 40.1929 40.0189 38.8175C40.2976 38.5202 40.4277 38.1996 40.4092 37.8557C40.3999 37.5119 40.2651 37.2331 40.0049 37.0194C39.7354 36.7963 39.438 36.7034 39.1128 36.7406C38.7968 36.7685 38.5041 36.9218 38.2346 37.2006C37.231 38.325 36.0183 39.2171 34.5964 39.8769C33.1839 40.5367 31.6599 40.8666 30.0243 40.8666C28.6118 40.8666 27.2829 40.6204 26.0377 40.1278C24.7924 39.6446 23.6773 38.9662 22.6923 38.0927C21.7165 37.2192 20.9127 36.2062 20.2807 35.0539C19.6581 33.9016 19.2585 32.6471 19.082 31.2903H21.0474C21.5399 31.2903 21.8466 31.1416 21.9674 30.8442C22.0882 30.5469 22.0139 30.2077 21.7444 29.8267L18.6777 25.5055C18.4547 25.1802 18.1898 25.0176 17.8832 25.0176C17.5858 25.0176 17.321 25.1802 17.0886 25.5055L14.0359 29.8127ZM20.0577 20.7522C19.7696 21.0495 19.6302 21.3701 19.6395 21.714C19.6581 22.0578 19.7975 22.3366 20.0577 22.5503C20.3179 22.7641 20.6106 22.857 20.9359 22.8291C21.2611 22.8012 21.5585 22.6479 21.828 22.3691C22.8316 21.254 24.0397 20.3712 25.4522 19.7207C26.8648 19.0609 28.3888 18.731 30.0243 18.731C31.4369 18.731 32.7657 18.9726 34.011 19.4558C35.2562 19.939 36.3667 20.6174 37.3425 21.4909C38.3275 22.3552 39.1314 23.3681 39.754 24.5297C40.3859 25.6913 40.7902 26.9459 40.9667 28.2933H39.0013C38.518 28.2933 38.2114 28.442 38.0813 28.7394C37.9512 29.0368 38.0255 29.376 38.3043 29.757L41.357 34.0782C41.5801 34.3941 41.8449 34.5568 42.1516 34.566C42.4582 34.566 42.7231 34.4034 42.9461 34.0782L46.0128 29.7709C46.2916 29.3806 46.3659 29.0368 46.2358 28.7394C46.115 28.442 45.8083 28.2933 45.3158 28.2933H43.4758C43.2899 26.6206 42.8114 25.0548 42.0401 23.5958C41.278 22.1368 40.2883 20.859 39.071 19.7625C37.8536 18.6659 36.4736 17.8063 34.931 17.1837C33.3884 16.5611 31.7528 16.2498 30.0243 16.2498C28.0543 16.2498 26.205 16.6586 24.4765 17.4764C22.7573 18.2849 21.2844 19.3768 20.0577 20.7522Z" fill="currentColor"/>
-      </svg>
+  <!-- 底部：相册（20,807）/ 快门（179,796）/ 设置（362,807）-->
+  <div class="side-btn album" id="albumBtn"></div>
+  <div class="shutter-btn" id="shutterBtn"></div>
+  <div class="side-btn setting" id="settingBtn" title="调整参数">
+    <img src="assets/camera/icon-setting-line.svg" alt="调整参数">
+  </div>
+
+  <!-- 参数半层（adjusting）：把手 + 形状选择 + 4 滑块 -->
+  <div class="scrim" id="scrim"></div>
+  <div class="param-panel" id="paramPanel">
+    <div class="panel-handle">
+      <!-- 颜色按钮：显示当前蒙版色，点击弹苹果原生取色器 -->
+      <label class="color-btn" id="colorBtn" title="蒙版颜色">
+        <span class="color-dot" id="colorDot"></span>
+        <input type="color" id="colorPicker" value="#F9FFB1">
+      </label>
+      <button class="handle-close" id="panelClose" aria-label="收起">
+        <img src="assets/camera/icon-collapse.svg" alt="收起">
+      </button>
     </div>
+    <!-- 形状选择器（后端 /v1/config 动态渲染）-->
+    <div class="shape-bar" id="shapeBar"></div>
+    <!-- 4 滑块（Figma sun 图标 visible=false，设计无两侧图标，只有文字标签）-->
+    <div class="cam-sliders">
+      <div class="slider-row"><span class="s-lbl">占比</span><input type="range" class="param-slider" id="ratioSlider" min="0" max="100" value="50"></div>
+      <div class="slider-row"><span class="s-lbl">差异</span><input type="range" class="param-slider" id="varSlider" min="0" max="100" value="50"></div>
+      <div class="slider-row"><span class="s-lbl">大小</span><input type="range" class="param-slider" id="sizeSlider" min="8" max="36" value="20"></div>
+      <div class="slider-row"><span class="s-lbl">数量</span><input type="range" class="param-slider" id="dotSlider" min="5" max="40" value="14"></div>
+    </div>
+  </div>
+
+  <!-- 隐藏兼容元素（JS 依赖但设计无独立位置：状态栏时钟/横竖交换/翻转/填充色/随机/数值）-->
+  <div class="hidden-compat">
+    <div id="statusTime">9:41</div>
+    <button class="seg-btn active" data-orient="portrait"></button>
+    <button class="seg-btn" data-orient="landscape"></button>
+    <button id="swapBtn"></button>
+    <button id="flipBtn"></button>
+    <div id="colorBar"></div>
+    <button id="randomBtn"></button>
+    <span id="ratioValue"></span><span id="varValue"></span><span id="sizeValue"></span><span id="dotValue"></span>
   </div>
 
   <!-- 权限 -->
@@ -409,6 +476,13 @@
   <!-- 成片确认层（confirming 态：快门冻结帧全屏 + 底部 close/done） -->
   <div class="confirm-overlay" id="confirmOverlay">
     <canvas id="confirmCanvas"></canvas>
+    <!-- 四角标记（Figma confirming 态 · #FAFFB1）-->
+    <div class="confirm-corners">
+      <div class="confirm-corner tl"></div>
+      <div class="confirm-corner tr"></div>
+      <div class="confirm-corner bl"></div>
+      <div class="confirm-corner br"></div>
+    </div>
     <div class="confirm-actions">
       <!-- 叉：取消，返回实时预览 -->
       <button class="confirm-btn cancel" id="confirmCancelBtn" aria-label="取消">
@@ -464,7 +538,7 @@ const state = {
   shape: 'circle',           // circle / teardrop / star / char
   char: '喵',
   starPoints: 5,
-  maskColor: '#bfe5f0',      // 填充色（默认浅蓝，可自定义）
+  maskColor: '#F9FFB1',      // 填充色（Figma 蒙版黄绿 fill #F9FFB1）
   dotPositions: [],
   facingMode: 'environment',
   isCapturing: false,
@@ -477,8 +551,8 @@ const state = {
 const PRESET_COLORS = ['#ffffff', '#bfe5f0', '#f5efe0', '#d4f1e8', '#ffd6e4', '#1a1a2e'];
 
 // 容器尺寸约束
-const MAX_W = 358;
-const MAX_H = 440;
+const MAX_W = 406;   // 取景区宽（Figma Corner Markers 406）
+const MAX_H = 573;   // 取景区高（Figma 573）
 
 // 判断颜色亮度（水印反色）
 function isHexDark(hex) {
@@ -502,9 +576,9 @@ function getLayout() {
   const sw = state.swapped;
 
   if (state.orientation === 'portrait') {
-    // 竖屏：上下分割。单区 4:3 横（宽 W、最大高 Hmax 固定）
+    // 竖屏：上下分割。取景框满宽 406（Figma Corner Markers），上下两半各 MAX_H/2
+    const W = MAX_W;
     const Hmax = Math.round(MAX_H / 2);
-    const W = Math.round(Hmax * 4 / 3);
     // 各区可见尺寸：缩小的区从"靠外侧的边"裁
     let frameVis, maskVis;
     if (v <= 50) { frameVis = Hmax; maskVis = Hmax * v / 50; }
@@ -770,19 +844,15 @@ function renderFrame() {
 
   ctx.restore();  // 退出基准坐标系
 
-  // ④ 水印（canvas 坐标，右下角，自适应）
-  ctx.fillStyle = isHexDark(state.maskColor) ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
-  ctx.font = '600 9px -apple-system, PingFang SC';
-  ctx.textAlign = 'right';
-  ctx.fillText('步集 · BUJI', W - 8, H - 6);
-
-  // FPS
+  // FPS（内部计数，设计无角标显示）
   state.frameCount++;
   const now = performance.now();
   if (now - state.lastFpsTime > 1000) {
     const fps = Math.round(state.frameCount * 1000 / (now - state.lastFpsTime));
-    fpsBadge.textContent = `${fps} fps`;
-    fpsBadge.style.color = fps >= 25 ? '#4eff91' : fps >= 15 ? '#ffcc00' : '#ff5555';
+    if (fpsBadge) {
+      fpsBadge.textContent = `${fps} fps`;
+      fpsBadge.style.color = fps >= 25 ? '#4eff91' : fps >= 15 ? '#ffcc00' : '#ff5555';
+    }
     state.frameCount = 0; state.lastFpsTime = now;
   }
 }
@@ -941,6 +1011,9 @@ function renderColorBar() {
     sw.addEventListener('click', () => { state.maskColor = col; document.getElementById('colorPicker').value = col; renderColorBar(); });
     bar.insertBefore(sw, addBtn);
   });
+  // 同步把手左上角「颜色按钮」的当前色圆点
+  const _cd = document.getElementById('colorDot');
+  if (_cd) _cd.style.background = state.maskColor;
 }
 
 // ── 事件 ──────────────────────────────────────────────────
@@ -977,22 +1050,19 @@ document.getElementById('confirmDoneBtn').addEventListener('click', () => {
   go('goPublish', 'publish-page.html');
 });
 
+// ── 等比缩放：绝对定位居中 + translate scale，整机完整可见不截断 ──
+const _shell = document.getElementById('phoneShell');
+const fitShell = () => {
+  const sw = 430, sh = 932, pad = IS_EMBED ? 0 : 24;
+  const scale = Math.min(1, (window.innerWidth - pad) / sw, (window.innerHeight - pad) / sh);
+  _shell.style.setProperty('transform', `scale(${scale})`, 'important');
+};
+fitShell();
+window.addEventListener('resize', fitShell);
+
 // embed 模式：顶部左键（闪光灯）→ 返回箭头，返回发现页
 if (IS_EMBED) {
   document.body.classList.add('embed');
-
-  // ── 等比缩放：让整个相机页（含快门键）恰好填满 iframe ──
-  // 设计尺寸 430×1012；按 iframe 实际 w/h 求最小 scale，保证全内容可见
-  const _shell = document.getElementById('phoneShell');
-  function fitShellToIframe() {
-    const sw = 430, sh = 1012;
-    const scale = Math.min(window.innerWidth / sw, window.innerHeight / sh);
-    // 用 important 覆盖 CSS 里的 `transform: scale(1) !important`（否则 inline 无 important 不生效）
-    _shell.style.setProperty('transform', `scale(${Math.min(1, scale)})`, 'important');
-  }
-  fitShellToIframe();
-  window.addEventListener('resize', fitShellToIframe);
-
   const backBtn = document.getElementById('topLeftBtn');
   if (backBtn) {
     backBtn.title = '返回';
@@ -1039,20 +1109,20 @@ function renderShapeBar(shapes) {
     btn.className = 'shape-btn' + (s.id === state.shape ? ' active' : (state.shape == null && i === 0 ? ' active' : ''));
     btn.dataset.shape = s.id;
     btn.title = s.name || s.id;
-    btn.textContent = s.icon || s.name || s.id;
-    // 字符形状按钮（如喵）用小一号字号
-    if (s.id === 'char' || (s.icon && s.icon.length === 1 && /[\u4e00-\u9fa5]/.test(s.icon))) {
-      btn.style.fontSize = '13px';
-      btn.style.fontWeight = '600';
-    }
+    // 图形用 CSS 背景切图（Figma 导出），选中态由 .active::after 叠黑遮罩+随机icon
     bar.appendChild(btn);
   });
 }
 
-// 事件委托：点击 shape-btn 切形状 + 同步 state.char
+// 事件委托：点击未选中→切形状；点击已选中（遮罩上的随机icon）→触发该形状随机布局
 document.getElementById('shapeBar').addEventListener('click', (e) => {
   const btn = e.target.closest('.shape-btn');
   if (!btn) return;
+  if (btn.classList.contains('active')) {
+    // 选中态再次点击 = 随机重排该形状布局（原 demo 的随机功能）
+    regenerateDots();
+    return;
+  }
   document.querySelectorAll('#shapeBar .shape-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const id = btn.dataset.shape;
@@ -1062,6 +1132,10 @@ document.getElementById('shapeBar').addEventListener('click', (e) => {
   if (id === 'char' && p.char) state.char = p.char;
   if (id === 'star' && p.points) state.starPoints = p.points;
 });
+
+// 【暂缓·需求已记录】「喵的祝福」字符自定义：选中「喵」后点击取景框任意字符位置 → 弹键盘改字符。
+//   触点定在整个取景框上；能力在早期 demo 已验证（state.char 驱动 canvas 绘制）。
+//   本期暂不实现，待接口位置确定后再启用。
 
 async function loadShapes() {
   try {
@@ -1085,32 +1159,51 @@ async function loadShapes() {
   }
 }
 
+// 滑块进度条填充：左侧高亮 rgba(255,255,255,0.32)，右侧灰 rgba(120,120,128,0.2)
+function updateSliderFill(el) {
+  const min = +el.min || 0, max = +el.max || 100;
+  const pct = ((+el.value - min) / (max - min)) * 100;
+  el.style.background = `linear-gradient(to right, rgba(255,255,255,0.32) 0 ${pct}%, rgba(120,120,128,0.2) ${pct}% 100%)`;
+}
+function initSliderFills() {
+  ['ratioSlider','varSlider','sizeSlider','dotSlider'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) updateSliderFill(el);
+  });
+}
+
 // 占比（遮罩占比，位置不变）
 document.getElementById('ratioSlider').addEventListener('input', e => {
   const v = parseInt(e.target.value);
   state.maskRatio = v / 100;
   document.getElementById('ratioValue').textContent = v;
+  updateSliderFill(e.target);
   updateCanvasSize();   // 占比改变 → 容器整体尺寸随之变化
 });
 // 差异（位置不变，只变大小）
 document.getElementById('varSlider').addEventListener('input', e => {
   state.variance = parseInt(e.target.value) / 100;
   document.getElementById('varValue').textContent = e.target.value;
+  updateSliderFill(e.target);
   applyVariance();
 });
 // 大小（只缩放，位置不变）
 document.getElementById('sizeSlider').addEventListener('input', e => {
   state.dotBaseSize = parseInt(e.target.value);
   document.getElementById('sizeValue').textContent = e.target.value;
+  updateSliderFill(e.target);
 });
 // 数量（增减，位置不变）
 document.getElementById('dotSlider').addEventListener('input', e => {
   setDotCount(parseInt(e.target.value));
+  updateSliderFill(e.target);
 });
 
 // 自定义填充色（系统取色器）
 document.getElementById('colorPicker').addEventListener('input', e => {
   state.maskColor = e.target.value;
+  const _cd = document.getElementById('colorDot');
+  if (_cd) _cd.style.background = e.target.value;
   renderColorBar();
 });
 
@@ -1130,6 +1223,15 @@ document.querySelectorAll('.zoom-btn').forEach(b => {
   });
 });
 
+// ── 参数半层显隐：设置按钮打开（adjusting）；收起箭头/遮罩点击关闭（回 shooting）──
+const _scrim = document.getElementById('scrim');
+const _panel = document.getElementById('paramPanel');
+function openPanel() { _scrim.classList.add('show'); _panel.classList.add('show'); }
+function closePanel() { _scrim.classList.remove('show'); _panel.classList.remove('show'); }
+document.getElementById('settingBtn').addEventListener('click', openPanel);
+document.getElementById('panelClose').addEventListener('click', closePanel);
+_scrim.addEventListener('click', closePanel);
+
 function showToast(msg) {
   const t = document.createElement('div');
   t.textContent = msg;
@@ -1148,6 +1250,7 @@ function init() {
   // 先本地兜底渲染形状按钮（离线可用）；随后异步拉后端配置覆盖
   renderShapeBar(DEFAULT_SHAPES);
   loadShapes();
+  initSliderFills();   // 初始化 4 个滑块的进度条填充
   state.lastFpsTime = performance.now();
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     // 浏览器不支持 → 停留在兜底页（提示 + 演示模式入口）

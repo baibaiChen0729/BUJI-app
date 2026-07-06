@@ -1,0 +1,12 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip_dot)">
+<rect width="80" height="80" rx="16" fill="#E4E4E4"/>
+<circle cx="32" cy="76" r="12" fill="#C0C0C0"/>
+<circle cx="56" cy="38" r="12" fill="#C0C0C0"/>
+<circle cx="37" cy="2" r="7" fill="#C0C0C0"/>
+<circle cx="11" cy="38" r="7" fill="#C0C0C0"/>
+</g>
+<defs>
+<clipPath id="clip_dot"><rect width="80" height="80" rx="16" fill="white"/></clipPath>
+</defs>
+</svg>
