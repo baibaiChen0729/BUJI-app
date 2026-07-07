@@ -190,12 +190,10 @@
     color: #ffffff;                         /* 激活：白字 */
     border-color: rgba(21, 41, 56, 0.30);   /* Figma 激活描边 #152938/0.30 */
   }
-  .cta.loading {
-    background: #2E383F;
-    color: #ffffff;
-    border-color: rgba(21, 41, 56, 0.30);
-    opacity: 0.75;
+  .cta:disabled {
+    opacity: 0.4;
     cursor: default;
+    pointer-events: none;
   }
   .cta:active { transform: scale(0.97); }
 
@@ -401,7 +399,7 @@
 
   async function handleSubmit() {
     if (!cta.classList.contains('active')) return;
-    if (cta.classList.contains('loading')) return;
+    if (cta.disabled) return;
 
     let draft = null;
     try { draft = localStorage.getItem('buji_draft'); } catch (e) {}
@@ -410,10 +408,8 @@
     let caption = (textInput.textContent || '').trim();
     if (caption === '记录让幸福可以翻阅') caption = '';
 
-    // 发布中态
-    cta.classList.add('loading');
-    const origText = cta.textContent;
-    cta.textContent = '发布中…';
+    // 点击后立即置灰禁用
+    cta.disabled = true;
 
     try {
       const today = new Date().toISOString().slice(0, 10);
@@ -424,8 +420,7 @@
     } catch (err) {
       console.error('[publish] 发布失败:', err);
       showToast('发布失败：' + (err.message || '网络错误'));
-      cta.classList.remove('loading');
-      cta.textContent = origText;
+      cta.disabled = false;   // 失败时恢复可点击
     }
   }
 

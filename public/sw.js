@@ -4,7 +4,7 @@
 //        GET API network-only；POST/PUT/DELETE 完全不拦截。
 // ══════════════════════════════════════════════════════════
 
-const CACHE = 'buji-v28';
+const CACHE = 'buji-v29';
 
 // 安装时预缓存所有前端壳资源
 const PRECACHE = [
