@@ -530,7 +530,6 @@ const state = {
   video: null,
   demoMode: false,
   flashOn: false,       // 闪光灯当前状态（torch：仅真机生效）
-  albumSrc: null,       // 相册选入的图片（HTMLImageElement），非 null 时覆盖摄像头画面
   orientation: 'portrait',   // portrait=竖屏(2:3,上下分割) / landscape=横屏(4:3,左右分割)
   maskRatio: 0.5,            // 遮罩区占比 0~1（占比滑块/100；0.5 等比）
   swapped: false,            // false=取景在上/遮罩在下
@@ -801,19 +800,10 @@ function renderFrame() {
   if (!dims) return;
   const { W, H, baseFrame, baseMask, offX, offY } = dims;
 
-  // 画面源：相册选图 > 摄像头实时帧 > demo 帧
+  // 画面源：摄像头实时帧 > demo 帧
   let src, srcW = 640, srcH = 480;
-  if (state.albumSrc) {
-    src = state.albumSrc;
-    srcW = state.albumSrc.naturalWidth || 640;
-    srcH = state.albumSrc.naturalHeight || 480;
-  } else if (state.demoMode || !state.video) {
-    src = createDemoFrame();
-  } else {
-    src = state.video;
-    srcW = src.videoWidth || 640;
-    srcH = src.videoHeight || 480;
-  }
+  if (state.demoMode || !state.video) { src = createDemoFrame(); }
+  else { src = state.video; srcW = src.videoWidth || 640; srcH = src.videoHeight || 480; }
 
   // 清空
   ctx.clearRect(0, 0, W, H);
@@ -1046,14 +1036,15 @@ function renderColorBar() {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      // 释放旧 objectURL（防内存泄漏）
-      if (state.albumSrc && state.albumSrc._objURL) URL.revokeObjectURL(state.albumSrc._objURL);
-      img._objURL = url;
-      state.albumSrc = img;
-      // 把相册图缩略图设为按钮背景，给用户视觉反馈
-      albumBtn.style.backgroundImage = `url(${url})`;
-      albumBtn.style.backgroundSize = 'cover';
-      albumBtn.style.backgroundPosition = 'center';
+      // 将图片绘制到离屏 canvas，转 JPEG 存草稿（与快门确认流程一致）
+      const oc = document.createElement('canvas');
+      oc.width = img.naturalWidth;
+      oc.height = img.naturalHeight;
+      oc.getContext('2d').drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      try { localStorage.setItem('buji_draft', oc.toDataURL('image/jpeg', 0.82)); } catch(e) {}
+      // 直接跳转发布页
+      go('goPublish', 'publish-page.html');
     };
     img.onerror = () => URL.revokeObjectURL(url);
     img.src = url;
