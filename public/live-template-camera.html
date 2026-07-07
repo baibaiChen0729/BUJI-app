@@ -240,57 +240,38 @@
   /* ─── 成片确认层（confirming 态）─── */
   .confirm-overlay {
     position: absolute; inset: 0; z-index: 200;
+    background: #2A2A2A;                 /* 遮住底层实时预览 */
     opacity: 0; pointer-events: none;
     transition: opacity 0.28s cubic-bezier(0.22,1,0.36,1);
     display: flex; flex-direction: column;
   }
   .confirm-overlay.show { opacity: 1; pointer-events: all; }
 
-  /* 全屏成片画布 */
+  /* 布局容器（Figma Frame 2116747383）：仅定义 406×573 范围 + 居中，不带任何视觉属性 */
+  .confirm-photo-box {
+    position: absolute; left: 12px; top: 144px;
+    width: 406px; height: 573px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* 图片自身：宽406、高按比例，圆角24 是图片属性（随图片走，变矮时圆角跟随）*/
   #confirmCanvas {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: contain; background: #000;
+    display: block;
+    width: 406px;               /* 高度由 JS 按比例设置 */
+    border-radius: 24px;
+    background: #000;
   }
 
-  /* 底部操作区：叉 + 勾，直径 68 */
-  .confirm-actions {
-    position: absolute; bottom: 48px; left: 0; right: 0;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 60px;
-    z-index: 10;
-  }
+  /* 两个按钮完全同级（Figma Group 2053141977：都是 68×68 半透明白圆）*/
   .confirm-btn {
     width: 68px; height: 68px; border-radius: 50%;
     border: none; cursor: pointer;
+    background: rgba(255,255,255,0.20);   /* Figma Action/Rotate fill=#FFFFFF op0.20 */
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.15s, opacity 0.15s;
   }
   .confirm-btn:active { transform: scale(0.9); opacity: 0.8; }
-  .confirm-btn.cancel {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(255,255,255,0.3);
-  }
-  .confirm-btn.done {
-    background: rgba(255,255,255,0.95);
-  }
-  .confirm-btn svg { width: 28px; height: 28px; }
-
-  /* confirming 态四角标记（Figma fill_GBBR9Q #FAFFB1 · L 型）——框住成片显示区 */
-  .confirm-corners { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
-  .confirm-corner {
-    position: absolute; width: 26px; height: 26px;
-  }
-  .confirm-corner::before, .confirm-corner::after {
-    content: ''; position: absolute; background: #FAFFB1;
-  }
-  .confirm-corner::before { width: 26px; height: 3px; top: 0; left: 0; }
-  .confirm-corner::after  { width: 3px; height: 26px; top: 0; left: 0; }
-  .confirm-corner.tl { top: 28px; left: 24px; }
-  .confirm-corner.tr { top: 28px; right: 24px; transform: scaleX(-1); }
-  .confirm-corner.bl { bottom: 150px; left: 24px; transform: scaleY(-1); }
-  .confirm-corner.br { bottom: 150px; right: 24px; transform: scale(-1,-1); }
+  /* icon：设计稿导出的白色叉/勾，34×34 居中 */
+  .confirm-btn img { width: 34px; height: 34px; display: block; }
 
   /* ─── 旧成片层（保留兼容，实际不再使用）─── */
   .result-overlay {
@@ -370,10 +351,10 @@
   /* 隐藏兼容元素 */
   .hidden-compat { position: absolute; width: 0; height: 0; overflow: hidden; opacity: 0; pointer-events: none; }
 
-  /* 确认层 close/done 按设计位置（111/251,780 · 68×68）*/
-  .confirm-actions { position: absolute !important; bottom: 84px; left: 0; right: 0; padding: 0 !important; z-index: 10; }
-  .confirm-btn.cancel { position: absolute; left: 111px; }
-  .confirm-btn.done { position: absolute; right: 111px; }
+  /* 确认层 close/done：固定位置（Figma 按钮 top=780 底848 → bottom 84），高度68 修复粘底 */
+  .confirm-actions { position: absolute !important; bottom: 84px; height: 68px; left: 0; right: 0; padding: 0 !important; z-index: 10; }
+  .confirm-btn.cancel { position: absolute; left: 111px; top: 0; }
+  .confirm-btn.done { position: absolute; right: 111px; top: 0; }
 
   /* 形状按钮切图（Figma 导出 SVG，含 #E4E4E4 底 + 图标）*/
   .shape-btn { font-size: 0 !important; background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
@@ -473,29 +454,19 @@
   <!-- 闪光 -->
   <div class="flash" id="flash"></div>
 
-  <!-- 成片确认层（confirming 态：快门冻结帧全屏 + 底部 close/done） -->
+  <!-- 成片确认层（confirming 态：冻结帧在固定容器内居中 + 底部 close/done，无角标） -->
   <div class="confirm-overlay" id="confirmOverlay">
-    <canvas id="confirmCanvas"></canvas>
-    <!-- 四角标记（Figma confirming 态 · #FAFFB1）-->
-    <div class="confirm-corners">
-      <div class="confirm-corner tl"></div>
-      <div class="confirm-corner tr"></div>
-      <div class="confirm-corner bl"></div>
-      <div class="confirm-corner br"></div>
+    <div class="confirm-photo-box">
+      <canvas id="confirmCanvas"></canvas>
     </div>
     <div class="confirm-actions">
-      <!-- 叉：取消，返回实时预览 -->
+      <!-- 叉：取消，返回实时预览（Figma close icon 470:2542）-->
       <button class="confirm-btn cancel" id="confirmCancelBtn" aria-label="取消">
-        <svg viewBox="0 0 28 28" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.4" stroke-linecap="round">
-          <line x1="8" y1="8" x2="20" y2="20"/>
-          <line x1="20" y1="8" x2="8" y2="20"/>
-        </svg>
+        <img src="assets/camera/confirm-close.svg" alt="取消">
       </button>
-      <!-- 勾：确认，存草稿去发布 -->
+      <!-- 勾：确认，存草稿去发布（Figma done icon 470:2540）-->
       <button class="confirm-btn done" id="confirmDoneBtn" aria-label="确认">
-        <svg viewBox="0 0 28 28" fill="none" stroke="#1a0a0f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6,14 12,20 22,9"/>
-        </svg>
+        <img src="assets/camera/confirm-done.svg" alt="确认">
       </button>
     </div>
   </div>
@@ -961,24 +932,15 @@ function takePhoto() {
   flash.classList.add('active');
   setTimeout(() => flash.classList.remove('active'), 120);
 
-  // 将当前合成帧拷贝到确认画布（全屏拉伸以填满 phone-shell）
-  const shell = document.getElementById('phoneShell');
-  const sw = shell.clientWidth, sh = shell.clientHeight;
-  confirmCanvas.width = sw * DPR;
-  confirmCanvas.height = sh * DPR;
-  confirmCanvas.style.width = sw + 'px';
-  confirmCanvas.style.height = sh + 'px';
+  // 保持拍照原始比例：canvas 宽 406，高按比例（占比收缩时变矮），在容器内垂直居中
+  const vw = 406;
+  const vh = Math.round(vw * canvas.height / canvas.width);
+  confirmCanvas.width = canvas.width;
+  confirmCanvas.height = canvas.height;
+  confirmCanvas.style.width = vw + 'px';
+  confirmCanvas.style.height = vh + 'px';
   const cctx = confirmCanvas.getContext('2d');
-  // 黑底
-  cctx.fillStyle = '#000';
-  cctx.fillRect(0, 0, confirmCanvas.width, confirmCanvas.height);
-  // 将合成帧居中 contain 绘制到全屏
-  const srcW = canvas.width, srcH = canvas.height;
-  const dstW = confirmCanvas.width, dstH = confirmCanvas.height;
-  const scale = Math.min(dstW / srcW, dstH / srcH);
-  const dx = (dstW - srcW * scale) / 2;
-  const dy = (dstH - srcH * scale) / 2;
-  cctx.drawImage(canvas, 0, 0, srcW, srcH, dx, dy, srcW * scale, srcH * scale);
+  cctx.drawImage(canvas, 0, 0);     // 1:1 拷贝，绝不拉伸；容器 flex 居中
 
   shutterBtn.classList.remove('capturing');
   setTimeout(() => {
