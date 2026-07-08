@@ -101,9 +101,16 @@
       }
       else if (d === 'closeOverlay') closeOverlay();                             // 相机/发布返回 → 收起覆盖层回发现页
     });
-  // ── Service Worker 注册（PWA 离线支持）────────────────────
+  // ── 开发阶段：禁用 Service Worker，主动注销 + 清缓存 ────────────
+  //   历史遗留的旧 SW 曾缓存住旧版 HTML，导致改动不生效（相册黑底等）。
+  //   这里不再注册，而是清理掉所有已注册 SW 与缓存，保证每次改动即时生效。
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(e => console.warn('[SW]', e));
+    navigator.serviceWorker.getRegistrations()
+      .then(function (rs) { rs.forEach(function (r) { r.unregister(); }); })
+      .catch(function () {});
+    if (window.caches && caches.keys) {
+      caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); }).catch(function () {});
+    }
   }
   </script>
 </body>
