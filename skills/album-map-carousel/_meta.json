@@ -1,8 +1,0 @@
-{
-  "slug": "album-map-carousel",
-  "name": "相册地图",
-  "version": "1.0.0",
-  "publishedAt": 1782864000000,
-  "author": "chenwenjing2@xiaohongshu.com",
-  "description": "相册地图 —— 固定 6 点位焦点轮播卡片墙（步集相册地图风），零依赖 JS 类。中列大图焦点 + 两侧错落露窄边，左右拖列轮转浏览；列轮出视口时悄悄换下一张，所有照片轮流流过中央焦点位并联动左上文案。当用户开发相册地图、照片墙、带说明文案的画廊、卡片轮播展示墙、Memoji/拍立得拼贴墙等需求时使用。提供 AlbumMapCarousel 类 + Figma 真实错落预设 + 内容无限推送 + 焦点回调。"
-}

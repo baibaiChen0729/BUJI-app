@@ -1,7 +1,0 @@
-{
-  "slug": "dot-mask-compositor",
-  "version": "1.1.0",
-  "publishedAt": 1782806400000,
-  "author": "chenwenjing2@xiaohongshu.com",
-  "description": "双区波点对照实时图像合成器（步集 / dooo0t 风），零依赖 JS 类。当用户开发相机滤镜 App、海报生成器、艺术风照片墙、双区对照展示等需求时使用。提供视频/图像/相机源 → 实心遮挡 + 镂空透出的双区合成能力。含 v1 双等区库 + v2 可变容器/裁切占比/横竖分割/自定义填充色（参考 live-template-camera.html）。"
-}
